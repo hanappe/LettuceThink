@@ -55,7 +55,10 @@ SIGNAL(INT0_vect)
     encoder0Pos++;    //encoder is moving forward
   else
     encoder0Pos--;    //encoder is moving backward
-  currentAngle = (int) (12 * encoder0Pos / 77 / 10);
+  // 1 encoder step corresponds to 360/300 degrees or 1.2 degrees on the encoder 
+  // 1 degree encoder corresponds to 1/(76+49/64) degrees on the wheel axis, or 1/76.765625 degrees
+  // 1 encoder step corresponds to 360/300/76.765625 degrees of the wheel axis, or approx. 360/23030 degrees
+  currentAngle = (int) (360 * encoder0Pos / 23030); // pos*360/300/76.765625
 }
 
 
