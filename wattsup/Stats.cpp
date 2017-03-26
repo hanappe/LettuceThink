@@ -18,6 +18,7 @@ void Stats::print()
                        "Power consumption", 60 - wuReinit);
         } else {
                 printf("%lf\t%-.1f\t%-.1f\n", time - stime, watts, energy);
+                fflush(stdout);
         }
 }
 

@@ -13,13 +13,14 @@ CC = gcc
 CFLAGS += -std=gnu99 -Wall ${OPT}
 CXX = g++
 CXXFLAGS += -Wall ${OPT} ${CPDN_INC} ${DBUS_INC}
-AR = ar
+JAVACC = javac
+JAVAFLAGS = 
 
 VERSION = 1.0
 
 buildir = .
 
-targets := wattsup 
+targets := wattsup WattsUpView.class
 objects := $(addprefix $(buildir)/,wattsup.o wu_termios.o Options.o Stats.o StatsUpdater.o)
 depends := $(filter %.d,$(objects:.o=.d))
 
@@ -37,6 +38,10 @@ $(buildir)/%.d: %.c
 $(buildir)/%.o: %.c
 	@mkdir -p `dirname $@`
 	$(CC) -o $@ $(CFLAGS) $< -c
+
+$(buildir)/%.class: %.java
+	@mkdir -p `dirname $@`
+	$(JAVACC) $(JAVAFLAGS) $<
 
 $(buildir)/%.d: %.cpp
 	@mkdir -p `dirname $@`
