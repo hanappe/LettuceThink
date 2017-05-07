@@ -60,13 +60,13 @@ void loop()
       long current = stepper.currentPosition();
       long delta = map(targetAngle - currentAngle, -90, 90, -MAX_STEPS, MAX_STEPS);
       stepper.moveTo(current + delta);
-      /*Serial.print(targetAngle);
+      Serial.print(targetAngle);
       Serial.print(' ');
       Serial.print(currentAngle);
       Serial.print(' ');
       Serial.print(current);
       Serial.print(' ');
-      Serial.println(delta);*/
+      Serial.println(delta);
     }
   }
   stepper.run();
