@@ -1,0 +1,5 @@
+
+all: navmod
+
+navmod: navmod.c
+	gcc navmod.c -o navmod
