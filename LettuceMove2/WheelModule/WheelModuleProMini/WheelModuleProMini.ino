@@ -14,10 +14,12 @@ AccelStepper stepper(AccelStepper::DRIVER,  DIRECTION_STEP,  DIRECTION_DIR);
 
 void setup()
 { 
-  Serial.begin(115200);
+  Serial.begin(9600);
 #if STEPPER_15
   stepper.setMaxSpeed(4000);
   stepper.setAcceleration(2500);
+  stepper.setMaxSpeed(400);
+  stepper.setAcceleration(250);
 #elif STEPPER_77
   stepper.setMaxSpeed(5000);
   stepper.setAcceleration(3000);
@@ -48,30 +50,49 @@ static long MAX_STEPS = (long) (1.0f + STEPS_PER_360 / 4.0f); // 90 degrees
 
 int currentAngle = 0;
 unsigned long lastRead = 0;
+unsigned long lastPrint = 0;
+long xk = 512;
 
-
+// Maximum input voltage is 1023 * (220 / 220 + 1) because of the voltage division.
+#define MAX_IN 1018
 void loop()
 {
   unsigned long now = millis();
-  if (now - lastRead > 10) {
+  if (now - lastRead > 25) {
     lastRead = now;
-    int targetAngle = map(analogRead(A0), 0, 1023, -90, 90);
+
+    long zk = analogRead(A3);
+    long a = 95;
+    xk = (a * xk + (100 - a) * zk + 50) / 100;
+    int targetAngle = map(xk, 0, MAX_IN, -90, 90);
+
+#if 0
+    Serial.print(zk);
+    Serial.print(" ");
+    Serial.print(xk);
+    Serial.print(" ");
+    Serial.println(512 + targetAngle);
+#endif
+
     if (abs(targetAngle - currentAngle) > 1) {
       long current = stepper.currentPosition();
       long delta = map(targetAngle - currentAngle, -90, 90, -MAX_STEPS, MAX_STEPS);
-      stepper.moveTo(current + delta);
-      Serial.print(targetAngle);
-      Serial.print(' ');
-      Serial.print(currentAngle);
-      Serial.print(' ');
-      Serial.print(current);
-      Serial.print(' ');
-      Serial.println(delta);
+      stepper.moveTo(current - delta);
+#if 1
+      if (now - lastPrint > 100) {      
+        lastPrint = now;
+        Serial.print("A0=");                Serial.print(zk);
+        Serial.print(", targetAngle=");     Serial.print(targetAngle);
+        Serial.print(", currentAngle=");    Serial.print(currentAngle);
+        Serial.print(", encoder0Pos=");     Serial.print(encoder0Pos);
+        Serial.print(", currentPosition="); Serial.print(current);
+        Serial.print(", delta=");           Serial.print(delta);
+        Serial.print(", MAX=");             Serial.println(MAX_STEPS);
+      }
+#endif
     }
   }
   stepper.run();
-  //  Serial.println(encoder0Pos);
-
 }
 
 SIGNAL(INT0_vect)

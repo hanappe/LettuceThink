@@ -4,25 +4,36 @@
 
 // Used pins
 #define SPEED_ENABLE 2
-#define SPEED_PWM 3
+#define SPEED_PWM 5
 #define DIRECTION_PWM 6
 
 byte mac[] = {
-  0x98, 0x76, 0xB6, 0x10, 0x57, 0x70
+  //0x98, 0x76, 0xB6, 0x10, 0x57, 0x70
+  //0x98, 0x76, 0xB6, 0x10, 0x61, 0xC9
+  0x98, 0x76, 0xB6, 0x10, 0x61, 0xBE
 };
-IPAddress ip(10, 0, 1, 14);
+IPAddress ip(10, 20, 30, 40);
 EthernetServer server(10101);
+
+//#define WIZ_CS 10
 
 void setup() {
   Serial.begin(115200);
-
+  //while (!Serial) {
+    //; // wait for serial port to connect. Needed for native USB
+  //}
+#if ARDUINO_AVR_FEATHER32U4
   setupPwm();
+#endif
   
   setupWheel();
   enableWheel();
   setupDirection();
 
 
+  //Ethernet.init(WIZ_CS);
+  //delay(1000);
+  
   /*TCCR1A = 0;//clear all default presets
   TCCR1B = 0;
   TCCR1C = 0;
@@ -55,7 +66,7 @@ void loop()
   if (client) {
      while (client.available()) {
         char c = client.read();
-        //Serial.write(c);
+        Serial.write(c);
         if (c == 'v') { 
           if (pstate == _opcode) {
             opcode = 'v';
@@ -104,6 +115,7 @@ void loop()
 void setupDirection()
 {
   pinMode(DIRECTION_PWM, OUTPUT); 
+  gotoDirection(0.0f);
 }
 
 void gotoDirection(float a)
@@ -111,8 +123,12 @@ void gotoDirection(float a)
   if (a < -90.0f) a = -90.0f;
   if (a > 90.0f) a = 90.0f;
   int pwm = 128 + (int) (127 * a / 90.0f);
-  //analogWrite(DIRECTION_PWM, pwm);
+#if ARDUINO_AVR_FEATHER32U4
   pwmSet6(pwm);
+#else
+  //analogWrite(DIRECTION_PWM, pwm);
+  analogWrite(A0, pwm);
+#endif  
 }
 
 
@@ -133,6 +149,8 @@ void gotoSpeed(int v)
   if (v > 100) v = 100;
   int pwm = PWM_LOW + v * (PWM_HIGH - PWM_LOW) / 100;
   analogWrite(SPEED_PWM, pwm);
+  Serial.print("analogwrite ");
+  Serial.println(pwm);
   //pwmSet13(pwm);
 }
 
@@ -163,6 +181,8 @@ void disableWheel()
    We limit imput frequency to 48MHz to generate 187.5kHz PWM
    If needed, we can double that up to 375kHz
 **********************************************************/
+
+#if ARDUINO_AVR_FEATHER32U4
 
 // Frequency modes for TIMER4
 #define PWM187k 1   // 187500 Hz
@@ -232,4 +252,10 @@ void pwmSet13(int value)
   TCCR4A=0x82;  // Activate channel A
 }
 
+#else
 
+void setupPwm()
+{
+}
+
+#endif

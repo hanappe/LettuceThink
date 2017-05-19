@@ -9,8 +9,8 @@ volatile int direction_prev_time = 0;
 int last_speed = 0;
 int last_direction = 0;
 
-int INTERRUPT_SPEED = digitalPinToInterrupt(2);
-int INTERRUPT_DIRECTION = digitalPinToInterrupt(3);
+int INTERRUPT_SPEED = digitalPinToInterrupt(3);
+int INTERRUPT_DIRECTION = digitalPinToInterrupt(2);
 
 #define MIN_DELTA 4
 #define SPEED_MIN 1632
@@ -19,16 +19,22 @@ int INTERRUPT_DIRECTION = digitalPinToInterrupt(3);
 #define DIR_MAX 1920
 
 byte mac[] = { 0x98, 0x76, 0xB6, 0x10, 0x57, 0x57 };
-IPAddress ip(10, 0, 1, 15);
-IPAddress server(10, 0, 1, 14);
+IPAddress ip(10, 20, 30, 2);
+IPAddress server(10, 20, 30, 1);
 EthernetClient client;
 int wasConnected = 0;
 
 void setup() {
   Serial.begin(115200);
-  Ethernet.begin(mac, ip);
+  //while (!Serial)
+  //  ;
+
   attachInterrupt(INTERRUPT_SPEED, speed_rising, RISING);
   attachInterrupt(INTERRUPT_DIRECTION, direction_rising, RISING);
+
+  Ethernet.begin(mac, ip);
+  Serial.print("IP is ");
+  Serial.println(Ethernet.localIP());
 
   // give the Ethernet shield a second to initialize:
   delay(1000);
@@ -78,10 +84,22 @@ void checkConnection()
   }  
 }
 
-void loop() 
-{ 
-  checkConnection();
-  
+long lastPing = 0;
+
+void sendPing()
+{
+  long now = millis();
+  if (now - lastPing < 1000)
+    return;
+  lastPing = now;
+  if (client.connected()) {
+      client.print('P');
+      client.println(";");
+  }
+}
+
+void sendSpeedAndDirection()
+{
   int changed = 0;
   int delta_speed = last_speed - speed_value;
   if (delta_speed > MIN_DELTA || delta_speed < -MIN_DELTA) {
@@ -102,7 +120,7 @@ void loop()
     Serial.print(speed);
     Serial.print("; d");
     Serial.print(direction);
-    Serial.println(";"); */
+    Serial.println(";");*/ 
     if (client.connected()) {
       client.print('v');
       client.print(speed);
@@ -111,6 +129,13 @@ void loop()
       client.println(';');
     }
   }
+}
+
+void loop() 
+{ 
+  checkConnection();
+  sendPing();
+  sendSpeedAndDirection();  
   delay(1);
 }
  
