@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Control panel</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+
+	<style>
+	span.glyphicon-stop, span.glyphicon-step-forward, span.glyphicon-step-backward {
+	font-size: 48px;
+	}
+
+	#xy-trackpad {
+        position: relative;
+	width: 240px;
+	height: 180px;
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+	-webkit-user-select	: none;
+	-moz-user-select	: none;
+	border: solid black 3px;
+        background-image: url("http://10.10.10.1/lettucesee/depthsense/rgb/?action=stream");
+	}
+	#xy-trackpad-img {
+        position: absolute;
+	width: 240px;
+	height: 180px;
+        top: 0px;
+        left: 0px;
+        z-index: -1;
+	}
+	#z-trackpad {
+	width: 30px;
+	height: 200px;
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+	-webkit-user-select	: none;
+	-moz-user-select	: none;
+	border: solid black 3px;
+	}
+		#info {
+			position	: absolute;
+			top		: 0px;
+			width		: 100%;
+			padding		: 5px;
+			text-align	: center;
+		}
+		#info a {
+			color		: #66F;
+			text-decoration	: none;
+		}
+		#info a:hover {
+			text-decoration	: underline;
+	}
+        div.frame {
+        padding: 20px;
+        border: solid black 3px;
+        }
+        canvas.CoordinatesView {
+        border: solid black 1px;
+        }
+        div.CoordinatesView {
+        margin-bottom: 10px;
+        }
+	</style>
+	
+  </head>
+  <body>
+
+    <div class="container">
+
+      <div class="row" style="margin-top: 20px">
+	<div class="col-xs-6">
+	  <div id="controller" class="frame">
+            RGB image
+	  </div>
+	</div>
+	<div class="col-xs-6">
+	  <div id="controller" class="frame">
+            Depth image
+	  </div>
+	</div>
+      </div>
+
+      <div class="row" style="margin-top: 20px">
+	<div class="col-xs-4">
+	  <div id="controller" class="frame">
+	    <img id="controller-img" src="img/controller-240x194.png" width="240" height="194" />
+	  </div>
+	</div>
+	<div class="col-xs-4">
+          <div class="frame">
+            <div class="CoordinatesView"><canvas class="CoordinatesView" id="CoordinatesView" width="200" height="200"></canvas></div>
+            <form style="margin-bottom: 20px;" name="Coordinates" id="Coordinates">
+              <table>
+                <tr>
+                  <td><label for="x">X</label></td>
+                  <td><input type="text" id="x" id="x" value="0" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="y">Y</label></td>
+                  <td><input type="text" name="y" id="y" value="0" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="z">Z</label></td>
+                  <td><input type="text" name="z" id="z" value="0" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="pan">Pan</label></td>
+                  <td><input type="text" name="pan" id="pan" value="0" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="tilt">Tilt</label></td>
+                  <td><input type="text" name="tilt" id="tilt" value="0" size="8"><br></td>
+                </tr>
+              </table>
+            </form>
+	    <button type="button" class="btn-lg btn-info btn-block" id="SetCoordinates">
+	      <strong>Go to</strong>
+	    </button>
+	    <button type="button" class="btn-lg btn-success btn-block" id="Homing">
+	      <strong>Homing</strong>
+	    </button>
+          </div>
+	</div>
+
+	<div class="col-xs-4">
+          <div class="frame">
+	    <h4>Circular scan</h4>
+            <form style="margin-bottom: 20px;" name="CircularScan" id="CircularScan">
+              <table>
+                <tr>
+                  <td><label for="r">X-center</label></td>
+                  <td><input type="text" name="xc" id="xc" value="50" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="r">Y-center</label></td>
+                  <td><input type="text" name="yc" id="yc" value="50" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="r">Z-center</label></td>
+                  <td><input type="text" name="zc" id="zc" value="0" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="r">Radius</label></td>
+                  <td><input type="text" name="r" id="r" value="30" size="8"><br></td>
+                </tr>
+                <tr>
+                  <td><label for="n">Number</label></td>
+                  <td><input type="text" name="n" id="n" value="12" size="8"><br></td>
+                </tr>
+              </table>
+            </form>
+	    <button type="button" class="btn-lg btn-info btn-block" id="LettuceThinkScan">
+	      <strong>Scan</strong>
+	    </button>
+            <hr>
+	    <h4>Rectangular scan</h4>
+            <form style="margin-bottom: 20px;" name="CircularScan" id="CircularScan">
+              <table>
+                <tr>
+                  <td><label for="r">Start X</label></td>
+                  <td><input type="text" name="xs" id="xs" value="20" size="8"></td>
+                </tr>
+                <tr>
+                  <td><label for="r">Start Y</label></td>
+                  <td><input type="text" name="ys" id="ys" value="20" size="8"></td>
+                </tr>
+                <tr>
+                  <td><label for="r">Length X</label></td>
+                  <td><input type="text" name="wx" id="wx" value="60" size="8"></td>
+                </tr>
+                <tr>
+                  <td><label for="r">Length Y</label></td>
+                  <td><input type="text" name="wy" id="wy" value="60" size="8"></td>
+                </tr>
+                <tr>
+                  <td><label for="r">Z</label></td>
+                  <td><input type="text" name="z" id="z" value="0" size="8"></td>
+                </tr>
+                <tr>
+                  <td><label for="n">Number</label></td>
+                  <td><input type="text" name="n" id="n" value="12" size="8"></td>
+                </tr>
+              </table>
+            </form>
+	    <button type="button" class="btn-lg btn-info btn-block" id="LettuceThinkScan">
+	      <strong>Scan</strong>
+	    </button>
+            <hr>
+            Files:
+            <div class="filelist">
+              <a href="scan/rgb-01.png">rgb-01.png</a><br>
+              <a href="scan/depth-01.png">depth-01.png</a><br>
+              <a href="scan/rgb-02.png">rgb-02.png</a><br>
+              <a href="scan/depth-03.png">depth-02.png</a><br>
+              <a href="scan/scan-20170518.zip">scan-20170518.zip</a><br>
+            </div>
+            
+          </div>
+	</div>
+      </div>
+
+      <div class="row" style="margin-top: 20px">
+	<div class="col-xs-12">
+	  <button type="button" class="btn-lg btn-danger btn-block" id="LettuceThinkStop">
+	    <strong>STOP ALL</strong>
+	  </button>
+	</div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/fabric/fabric.js"></script>
+
+    <script>
+    function lettuceThinkScan() {
+	$.get("/lettucethink/scan");
+    }
+
+    function lettuceThinkHoming() {
+	$.get("/lettucethink/homing");
+    }
+    
+    function lettuceThinkClean() {
+	$.get("/lettucethink/clean");
+    }
+    
+    function lettuceThinkStop() {
+	$.get("/lettucethink/reset");
+	$.get("/lettucemove/control/stop");
+    }
+
+    var moveHandler = function (evt) {
+    var movingObject = evt.target;
+    var p = movingObject.getCenterPoint();
+    document.getElementById("x").value = p.x / 2;
+    document.getElementById("y").value = p.y / 2;
+    document.getElementById("pan").value = movingObject.get('angle');
+    };
+
+    var modifiedHandler = function (evt) {
+    var movingObject = evt.target;
+    document.getElementById("pan").value = movingObject.get('angle');
+    }
+    
+    $(function() {
+	$('#LettuceThinkScan').on('click', lettuceThinkScan);
+	$('#LettuceThinkHoming').on('click', lettuceThinkHoming);
+	$('#LettuceThinkClean').on('click', lettuceThinkClean);
+	$('#LettuceThinkStop').on('click', lettuceThinkStop);
+
+    var canvas = new fabric.Canvas('CoordinatesView');
+    var triangle = new fabric.Triangle({
+    width: 16, height: 32, fill: 'blue',
+    left: 100, top: 100,
+    originX: "center",
+    originY: "center",
+    hasBorders: true,
+    hasControls: true,
+    hasRotatingPoint: true
+    });
+    triangle.setControlsVisibility({
+    mt: false,
+    mb: false,
+    ml: false,
+    mr: false,
+    tr: false,
+    tl: false,
+    br: false,
+    bl: false
+});
+    canvas.add(triangle);
+    canvas.on('object:moving', moveHandler);
+    canvas.on('object:modified', modifiedHandler);
+    
+    });
+    
+
+    </script>
+    
+
+  </body>
+</html>
+
+
+
